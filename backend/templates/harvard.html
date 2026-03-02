@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Using system fonts for better PDF text extraction -->
+    <title>Resume Template</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 12pt; /* Changed to pt for Google Doc accuracy */
+            background-color: white;
+            line-height: 1.1; /* Standard Calibri line spacing */
+        }
+
+        /* Crucial: We keep the container but remove internal padding 
+           so it doesn't clash with your Python generator options.
+        */
+        .resume {
+            width: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        .name {
+            font-size: 12pt;
+            font-weight: bold;
+            text-align: center;
+            line-height: 1.4;
+            margin-bottom: 1px;
+        }
+
+        .name-underline {
+            border-bottom: 1px solid black;
+            margin-bottom: 1px;
+        }
+
+        .contact-info {
+            font-size: 12pt;
+            font-weight: normal;
+            text-align: center;
+            line-height: 1.4;
+        }
+
+        .section-title {
+            text-align: center;
+            font-weight: bold;
+            font-size: 12pt;
+            line-height: 1.4;
+            padding-bottom: 1px;
+        }
+
+        .entry {
+            margin-top: 0;
+        }
+
+        .entry-header-box {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .entry-header {
+            font-weight: bold;
+            font-size: 12pt;
+            line-height: 1.4;
+        }
+
+        .entry-subheader-box {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .entry-subheader {
+            font-size: 12pt;
+            line-height: 1.4;
+            font-weight: bold;
+        }
+
+        .entry-details {
+            font-size: 12pt;
+            line-height: 1.4;
+        }
+
+ul {
+    /* This indents the entire list block from the left margin */
+    margin-left: 20pt; 
+    margin-top: 0;
+    margin-bottom: 0;
+    /* Reset padding so it doesn't double-indent */
+    padding-left: 0; 
+    line-height: 1.4;
+    list-style-type: disc;
+    /* Outside keeps the bullet in the margin-left area */
+    list-style-position: outside; 
+}
+
+li {
+    font-size: 12pt;
+    line-height: 1.4;
+    margin-bottom: 0;
+    /* This creates the specific gap between the bullet and the text */
+    padding-left: 5pt; 
+}
+
+        .skills-category {
+            font-size: 12pt;
+            line-height: 1.4;
+        }
+
+        .skills-category strong {
+            font-weight: bold;
+        }
+
+        .highlight {
+            font-weight: bold;
+        }
+
+        .summary {
+            text-align: center;
+            font-size: 12pt;
+            line-height: 1.4;
+            margin-bottom: 1px;
+        }
+
+        /* Removed the @media print block that was adding
+           extra padding and messing up your margins.
+        */
+    </style>
+</head>
+<body>
+    <div class="resume">
+        {% if personal_info %}
+        <div class="name">{{ personal_info.name }}</div>
+        <div class="name-underline"></div>
+	<br>
+        <div class="contact-info">
+            {{ personal_info.location }} {% if personal_info.email %}• {{ personal_info.email }}{% endif %} {% if personal_info.phone %}• {{ personal_info.phone }}{% endif %}
+            {% if personal_info.linkedin %} • {{ personal_info.linkedin }}{% endif %}
+        </div>
+        <br>
+        {% endif %}
+
+        {# Professional Summary for mid-level and senior candidates #}
+        {% if candidate_flow and candidate_flow.split('-')[1] in ['manager', 'IC'] and candidate_flow.split('-')[0] in ['mid', 'senior'] %}
+        <div class="summary">
+            Results-driven {{ candidate_flow.split('-')[1] }} professional with {{ experience_years_estimate|round|int }} years of experience delivering impactful solutions in {{ domain_tags[0] if domain_tags else 'technology' }}.
+        </div>
+        <br>
+        {% endif %}
+
+        {# Dynamic section rendering #}
+        {% if sections %}
+            {% for section in sections %}
+                {% if section.entries %}
+                <div class="section-title">{{ section.title }}</div>
+                {% for entry in section.entries %}
+                <div class="entry">
+                    {# Determine header field priority #}
+                    {% set header_field = entry.company or entry.school or entry.organization or entry.role or entry.degree or '' %}
+                    {% if header_field %}
+                    <div class="entry-header-box">
+                      <span class="entry-header">{{ header_field }}</span>
+                      {% if entry.location %}<span style="margin-left: auto;">{{ entry.location }}</span>{% endif %}
+                    </div>
+                    {% endif %}
+
+                    {# Subheader with role/degree and dates #}
+                    {% set subheader_field = entry.role or entry.degree or '' %}
+                    {% if subheader_field or entry.dates %}
+                    <div class="entry-subheader-box">
+                        {% if subheader_field %}<span class="entry-subheader">{{ subheader_field }}</span>{% endif %}
+                        {% if entry.dates %}<span style="margin-left: auto;">{{ entry.dates }}</span>{% endif %}
+                    </div>
+                    {% endif %}
+
+                    {# Additional details (thesis, etc.) #}
+                    {% if entry.thesis %}
+                    <div class="entry-details">{{ entry.thesis }}</div>
+                    {% endif %}
+
+                    {# Bullets with highlighting #}
+                    {% if entry.bullets %}
+                    <ul>
+                        {% for bullet in entry.bullets %}
+                        <li{% if bullet.importance > 0.7 %} class="highlight"{% endif %}>{{ bullet.text }}</li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+                </div>
+                <br>
+                {% endfor %}
+                {% elif section['values'] %}
+                <div class="section-title">{{ section.title }}</div>
+                <div class="entry">
+                    <div class="skills-category">{{ section['values']|join(', ') }}</div>
+                </div>
+                <br>
+                {% endif %}
+            {% endfor %}
+        {% else %}
+            {# Fallback to original rendering if sections not available #}
+            {% if full_reconstruction.education %}
+            <div class="section-title">Education</div>
+            {% for edu in full_reconstruction.education %}
+            <div class="entry">
+                <div class="entry-header">{{ edu.school }}</div>
+                <div class="entry-subheader-box">
+                    <span>{{ edu.degree }}</span>
+                    <span style="margin-left: auto;">{{ edu.dates }}</span>
+                </div>
+                <div class="entry-subheader-box">
+                    <div class="entry-details">{% if edu.thesis %}{{ edu.thesis }}{% endif %}</div>
+                </div>
+                {% if edu.bullets %}
+                <div class="entry-details">
+                    <ul>
+                        {% for bullet in edu.bullets %}<li>{{ bullet }}</li>{% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+            </div>
+            <br>
+            {% endfor %}
+            {% endif %}
+
+            {% if full_reconstruction.experience %}
+            <div class="section-title">Experience</div>
+            {% for job in full_reconstruction.experience %}
+            <div class="entry">
+                <div class="entry-header-box">
+                  <span class="entry-header">{{ job.company }}</span>
+                  <span style="margin-left: auto;">{{ job.location }}</span>
+                </div>
+                <div class="entry-subheader-box">
+                    <span class="entry-subheader">{{ job.role }}</span>
+                    <span style="margin-left: auto;">{{ job.dates }}</span>
+                </div>
+                {% if job.bullets %}
+                <ul>
+                    {% for bullet in job.bullets %}<li>{{ bullet }}</li>{% endfor %}
+                </ul>
+                {% endif %}
+            </div>
+            <br>
+            {% endfor %}
+            {% endif %}
+
+            {% if full_reconstruction.leadership_activities %}
+            <div class="section-title">Leadership & Activities</div>
+            {% for lead in full_reconstruction.leadership_activities %}
+            <div class="entry">
+                <div class="entry-header-box">
+                  <span class="entry-header">{{ lead.organization }}</span>
+                  <span style="margin-left: auto;">{{ lead.location }}</span>
+                </div>
+                <div class="entry-subheader-box">
+                    <span class="entry-subheader">{{ lead.role }}</span>
+                    <span style="margin-left: auto;">{{ lead.dates }}</span>
+                </div>
+                {% if lead.bullets %}
+                <ul>
+                    {% for bullet in lead.bullets %}<li>{{ bullet }}</li>{% endfor %}
+                </ul>
+                {% endif %}
+            </div>
+            <br>
+            {% endfor %}
+            {% endif %}
+
+            {% set has_technical = full_reconstruction.technical_skills and full_reconstruction.technical_skills|length > 0 %}
+            {% set has_languages = full_reconstruction.languages and full_reconstruction.languages|length > 0 %}
+            {% set has_laboratory = full_reconstruction.laboratory and full_reconstruction.laboratory|length > 0 %}
+            {% set has_interests = full_reconstruction.interests and full_reconstruction.interests|length > 0 %}
+
+            {% if has_technical or has_languages or has_laboratory or has_interests %}
+            <div class="section-title">Skills & Competencies</div>
+            <div class="entry">
+                {% if has_technical %}
+                <div class="skills-category"><strong>Technical Skills:</strong> {{ full_reconstruction.technical_skills|join(', ') }}</div>
+                {% endif %}
+                {% if has_languages %}
+                <div class="skills-category"><strong>Languages:</strong> {{ full_reconstruction.languages|join(', ') }}</div>
+                {% endif %}
+                {% if has_laboratory %}
+                <div class="skills-category"><strong>Laboratory Skills:</strong> {{ full_reconstruction.laboratory|join(', ') }}</div>
+                {% endif %}
+                {% if has_interests %}
+                <div class="skills-category"><strong>Interests:</strong> {{ full_reconstruction.interests|join(', ') }}</div>
+                {% endif %}
+            </div>
+            {% endif %}
+        {% endif %}
+    </div>
+</body>
+</html>

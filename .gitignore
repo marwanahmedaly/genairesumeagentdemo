@@ -1,0 +1,23 @@
+# Environment variables (Sensitive!)
+.env
+.env.backend
+.env.frontend
+
+# Ignore virtual environments
+venv/
+env/
+.venv/
+.vscode/
+
+# Ignore Python cache everywhere
+**/__pycache__/
+*.py[cod]
+*$py.class
+
+# Temporary/Generated Files
+temp_*.pdf
+pivoted_resume.pdf
+data/
+
+# OS specific files
+.DS_Store

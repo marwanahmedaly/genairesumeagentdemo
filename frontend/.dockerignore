@@ -1,0 +1,67 @@
+# Dependencies
+
+node_modules/
+yarn.lock
+pnpm-lock.yaml
+
+# Build output
+
+dist/
+build/
+.next/
+out/
+
+# Testing
+
+coverage/
+.nyc_output/
+
+# IDE
+
+.vscode/
+.idea/
+_.swp
+_.swo
+\*~
+.DS_Store
+
+# Environment
+
+.env
+.env.local
+.env.\*.local
+
+# Documentation
+
+\*.md
+docs/
+README.md
+
+# Git
+
+.git/
+.gitignore
+.gitattributes
+
+# CI/CD
+
+.github/
+.gitlab-ci.yml
+
+# Docker
+
+Dockerfile
+.dockerignore
+docker-compose.yml
+
+# Logs
+
+\*.log
+logs/
+
+# Misc
+
+.cache/
+.temp/
+tmp/
+\*.tmp
